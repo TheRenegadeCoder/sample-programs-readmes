@@ -79,11 +79,11 @@ def _generate_program_list(language: LanguageCollection) -> MDList:
 def _generate_credit() -> Paragraph:
     p = Paragraph([
         """
-        This page was generated automatically by the Sample Programs Docs Generator. 
+        This page was generated automatically by the Sample Programs READMEs tool. 
         Find out how to support this project on Github.
         """
     ])
-    p.insert_link("this project", "https://github.com/TheRenegadeCoder/sample-programs-docs-generator")
+    p.insert_link("this project", "https://github.com/TheRenegadeCoder/sample-programs-readmes")
     return p
 
 
