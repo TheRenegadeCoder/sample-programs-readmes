@@ -8,15 +8,14 @@ setuptools.setup(
     version="0.1.0",
     author="The Renegade Coder",
     author_email="jeremy.grifski@therenegadecoder.com",
-    description="Generates the README for the 'How to Python Code' repo",
+    description="The Sample Programs README Automation Tool",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/TheRenegadeCoder/how-to-python-readme",
+    url="https://github.com/TheRenegadeCoder/sample-programs-readmes",
     packages=setuptools.find_packages(),
     install_requires=[
-        "feedparser>=6",
-        "beautifulsoup4>=4",
-        "SnakeMD>=0"
+        "SnakeMD>=0",
+        "subete>=0"
     ],
     entry_points={
         "console_scripts": [

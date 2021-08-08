@@ -1,5 +1,41 @@
-from snakemd import Document, Paragraph, InlineText, MDList
-from subete import Repo, LanguageCollection
+import argparse
+import logging
+
+from snakemd import Document, InlineText, MDList, Paragraph
+from subete import LanguageCollection, Repo
+
+
+def main():
+    args = _get_args()
+    numeric_level = getattr(logging, args[1].upper(), None)
+    if not isinstance(numeric_level, int):
+        raise ValueError(f'Invalid log level: {args[1]}')
+    logging.basicConfig(level=numeric_level)
+    repo = Repo(source_dir=args[0])
+    readme_catalog = ReadMeCatalog(repo)
+    for language, page in readme_catalog.pages.items():
+        page.output_page(f"{args[0]}/{language[0]}/{language}")
+
+
+def _get_args() -> tuple:
+    """
+    A helper function which gets the log level from 
+    the command line. Set as warning from default. 
+    :return: the log level provided by the user
+    """
+    parser = argparse.ArgumentParser()
+    parser.add_argument("path")
+    parser.add_argument(
+        "-log",
+        "--log",
+        default="warning",
+        help=(
+            "Provide logging level. "
+            "Example --log debug', default='warning'"
+        ),
+    )
+    options = parser.parse_args()
+    return options.path, options.log
 
 
 def _get_intro_text(language: LanguageCollection) -> Paragraph:
@@ -115,3 +151,7 @@ class ReadMeCatalog:
         """
         for _, language in self.repo.language_collections().items():
             self._build_readme(language)
+
+
+if __name__ == "__main__":
+    main()
