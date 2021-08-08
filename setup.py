@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="yomu",
+    name="ronbun",
     version="0.1.0",
     author="The Renegade Coder",
     author_email="jeremy.grifski@therenegadecoder.com",
@@ -20,7 +20,7 @@ setuptools.setup(
     ],
     entry_points={
         "console_scripts": [
-            'yomu = yomu.readme:main'
+            'ronbun = ronbun.readme:main'
         ],
     },
     classifiers=(
