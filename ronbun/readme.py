@@ -109,6 +109,12 @@ def _generate_credit() -> Paragraph:
     return p
 
 
+def _generate_program_list_header(program_list, total_programs):
+    i = int(((len(program_list) / len(total_programs)) * 4))
+    emojis = [":disappointed:", ":thinking:", ":relaxed:", ":smile:", ":partying_face:"]
+    return f"Sample Programs List — {len(program_list)}/{len(total_programs)} {emojis[i]}"
+
+
 class ReadMeCatalog:
     """
     An representation of the collection of READMEs in the Sample Programs repo.
@@ -121,6 +127,7 @@ class ReadMeCatalog:
         """
         self.repo: Repo = repo
         self.pages: dict[str, Document] = dict()
+        self._programs = _get_complete_program_list()
         self._build_readmes()
 
     def _build_readme(self, language: LanguageCollection) -> None:
@@ -136,9 +143,8 @@ class ReadMeCatalog:
         page.add_element(_get_intro_text(language))
 
         # Sample Programs List
-        programs = _get_complete_program_list()  # TODO: this should be generated once
         program_list = _generate_program_list(language)
-        page.add_header(f"Sample Programs List [{len(program_list)}/{len(programs)}]", level=2)
+        page.add_header(_generate_program_list_header(program_list, self._programs), level=2)
         page.add_paragraph(_get_sample_programs_text())
         page.add_element(MDList(program_list))
 
