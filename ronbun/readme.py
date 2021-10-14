@@ -1,6 +1,8 @@
 import argparse
 import logging
+from xml.etree import ElementTree
 
+import requests
 from snakemd import Document, InlineText, MDList, Paragraph
 from subete import LanguageCollection, Repo
 
@@ -57,7 +59,7 @@ def _get_sample_programs_text() -> str:
     """
 
 
-def _generate_program_list(language: LanguageCollection) -> MDList:
+def _generate_program_list(language: LanguageCollection) -> list:
     """
     A helper function which generates a list of programs for the README.
     :param language: a language collection
@@ -73,7 +75,21 @@ def _generate_program_list(language: LanguageCollection) -> MDList:
             program_line.replace(":white_check_mark:", ":warning:") \
                 .replace_link(program.documentation_url(), program.article_issue_query_url())
         list_items.append(program_line)
-    return MDList(list_items)
+    return list_items
+
+
+def _get_complete_program_list() -> list:
+    """
+    A helper function which retrieves the entire list of eligible programs from the
+    documentation website.
+    """
+    programs = list()
+    xml_data = requests.get("https://sample-programs.therenegadecoder.com/sitemap.xml").content
+    for child in ElementTree.fromstring(xml_data):
+        url = child[0].text
+        if "projects" in url and len(url.split("/")) == 6:
+            programs.append(url.split("/")[4])
+    return sorted(programs)
 
 
 def _generate_credit() -> Paragraph:
@@ -114,9 +130,11 @@ class ReadMeCatalog:
         page.add_element(_get_intro_text(language))
 
         # Sample Programs List
-        page.add_header("Sample Programs List", level=2)
+        programs = _get_complete_program_list()
+        program_list = _generate_program_list(language)
+        page.add_header(f"Sample Programs List [{len(program_list)}/{len(programs)}]", level=2)
         page.add_paragraph(_get_sample_programs_text())
-        page.add_element(_generate_program_list(language))
+        page.add_element(MDList(program_list))
 
         # Testing
         page.add_header("Testing", level=2)
