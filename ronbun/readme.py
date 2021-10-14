@@ -136,7 +136,7 @@ class ReadMeCatalog:
         page.add_element(_get_intro_text(language))
 
         # Sample Programs List
-        programs = _get_complete_program_list()
+        programs = _get_complete_program_list()  # TODO: this should be generated once
         program_list = _generate_program_list(language)
         page.add_header(f"Sample Programs List [{len(program_list)}/{len(programs)}]", level=2)
         page.add_paragraph(_get_sample_programs_text())
