@@ -1,11 +1,18 @@
 import argparse
 import logging
+import ssl
+from urllib import request
+from xml.etree import ElementTree
 
 from snakemd import Document, InlineText, MDList, Paragraph
 from subete import LanguageCollection, Repo
 
 
+logger = logging.getLogger(__name__)
+
+
 def main():
+    ssl._create_default_https_context = ssl._create_unverified_context
     args = _get_args()
     numeric_level = getattr(logging, args[1].upper(), None)
     if not isinstance(numeric_level, int):
@@ -57,7 +64,7 @@ def _get_sample_programs_text() -> str:
     """
 
 
-def _generate_program_list(language: LanguageCollection) -> MDList:
+def _generate_program_list(language: LanguageCollection) -> list:
     """
     A helper function which generates a list of programs for the README.
     :param language: a language collection
@@ -73,7 +80,22 @@ def _generate_program_list(language: LanguageCollection) -> MDList:
             program_line.replace(":white_check_mark:", ":warning:") \
                 .replace_link(program.documentation_url(), program.article_issue_query_url())
         list_items.append(program_line)
-    return MDList(list_items)
+    return list_items
+
+
+def _get_complete_program_list() -> list:
+    """
+    A helper function which retrieves the entire list of eligible programs from the
+    documentation website.
+    """
+    programs = list()
+    logger.info(f"Attempting to open https://sample-programs.therenegadecoder.com/sitemap.xml")
+    xml_data = request.urlopen("https://sample-programs.therenegadecoder.com/sitemap.xml")
+    for child in ElementTree.parse(xml_data).getroot():
+        url = child[0].text
+        if "projects" in url and len(url.split("/")) == 6:
+            programs.append(url.split("/")[4])
+    return sorted(programs)
 
 
 def _generate_credit() -> Paragraph:
@@ -85,6 +107,12 @@ def _generate_credit() -> Paragraph:
     ])
     p.insert_link("this project", "https://github.com/TheRenegadeCoder/sample-programs-readmes")
     return p
+
+
+def _generate_program_list_header(program_list, total_programs):
+    i = int(((len(program_list) / len(total_programs)) * 4))
+    emojis = [":disappointed:", ":thinking:", ":relaxed:", ":smile:", ":partying_face:"]
+    return f"Sample Programs List — {len(program_list)}/{len(total_programs)} {emojis[i]}"
 
 
 class ReadMeCatalog:
@@ -99,6 +127,7 @@ class ReadMeCatalog:
         """
         self.repo: Repo = repo
         self.pages: dict[str, Document] = dict()
+        self._programs = _get_complete_program_list()
         self._build_readmes()
 
     def _build_readme(self, language: LanguageCollection) -> None:
@@ -114,9 +143,10 @@ class ReadMeCatalog:
         page.add_element(_get_intro_text(language))
 
         # Sample Programs List
-        page.add_header("Sample Programs List", level=2)
+        program_list = _generate_program_list(language)
+        page.add_header(_generate_program_list_header(program_list, self._programs), level=2)
         page.add_paragraph(_get_sample_programs_text())
-        page.add_element(_generate_program_list(language))
+        page.add_element(MDList(program_list))
 
         # Testing
         page.add_header("Testing", level=2)
