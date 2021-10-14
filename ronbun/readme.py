@@ -1,13 +1,18 @@
 import argparse
 import logging
+import ssl
+from urllib import request
 from xml.etree import ElementTree
 
-import requests
 from snakemd import Document, InlineText, MDList, Paragraph
 from subete import LanguageCollection, Repo
 
 
+logger = logging.getLogger(__name__)
+
+
 def main():
+    ssl._create_default_https_context = ssl._create_unverified_context
     args = _get_args()
     numeric_level = getattr(logging, args[1].upper(), None)
     if not isinstance(numeric_level, int):
@@ -84,8 +89,9 @@ def _get_complete_program_list() -> list:
     documentation website.
     """
     programs = list()
-    xml_data = requests.get("https://sample-programs.therenegadecoder.com/sitemap.xml").content
-    for child in ElementTree.fromstring(xml_data):
+    logger.info(f"Attempting to open https://sample-programs.therenegadecoder.com/sitemap.xml")
+    xml_data = request.urlopen("https://sample-programs.therenegadecoder.com/sitemap.xml")
+    for child in ElementTree.parse(xml_data).getroot():
         url = child[0].text
         if "projects" in url and len(url.split("/")) == 6:
             programs.append(url.split("/")[4])
