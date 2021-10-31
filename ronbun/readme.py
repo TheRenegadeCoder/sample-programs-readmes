@@ -1,8 +1,6 @@
 import argparse
 import logging
 import ssl
-from urllib import request
-from xml.etree import ElementTree
 
 from snakemd import Document, InlineText, MDList, Paragraph
 from subete import LanguageCollection, Repo
@@ -83,21 +81,6 @@ def _generate_program_list(language: LanguageCollection) -> list:
     return list_items
 
 
-def _get_complete_program_list() -> list:
-    """
-    A helper function which retrieves the entire list of eligible programs from the
-    documentation website.
-    """
-    programs = list()
-    logger.info(f"Attempting to open https://sample-programs.therenegadecoder.com/sitemap.xml")
-    xml_data = request.urlopen("https://sample-programs.therenegadecoder.com/sitemap.xml")
-    for child in ElementTree.parse(xml_data).getroot():
-        url = child[0].text
-        if "projects" in url and len(url.split("/")) == 6:
-            programs.append(url.split("/")[4])
-    return sorted(programs)
-
-
 def _generate_credit() -> Paragraph:
     p = Paragraph([
         """
@@ -109,10 +92,10 @@ def _generate_credit() -> Paragraph:
     return p
 
 
-def _generate_program_list_header(program_list, total_programs):
-    i = int(((len(program_list) / len(total_programs)) * 4))
+def _generate_program_list_header(program_count: int, total_program_count: int):
+    i = int(((program_count / total_program_count) * 4))
     emojis = [":disappointed:", ":thinking:", ":relaxed:", ":smile:", ":partying_face:"]
-    return f"Sample Programs List — {len(program_list)}/{len(total_programs)} {emojis[i]}"
+    return f"Sample Programs List — {program_count}/{total_program_count} {emojis[i]}"
 
 
 class ReadMeCatalog:
@@ -127,7 +110,6 @@ class ReadMeCatalog:
         """
         self.repo: Repo = repo
         self.pages: dict[str, Document] = dict()
-        self._programs = _get_complete_program_list()
         self._build_readmes()
 
     def _build_readme(self, language: LanguageCollection) -> None:
@@ -144,7 +126,7 @@ class ReadMeCatalog:
 
         # Sample Programs List
         program_list = _generate_program_list(language)
-        page.add_header(_generate_program_list_header(program_list, self._programs), level=2)
+        page.add_header(_generate_program_list_header(language.total_programs(), self.repo.total_approved_projects()), level=2)
         page.add_paragraph(_get_sample_programs_text())
         page.add_element(MDList(program_list))
 
