@@ -59,7 +59,7 @@ def _get_sample_programs_text() -> str:
     issue query featuring a possible article request issue. If an article request issue 
     doesn't exist, we encourage you to create one. Meanwhile, code snippets preceded 
     by :white_check_mark: link to an existing article which provides further documentation.
-    To see the list of approved projects, check out the official Sample Programs docs. 
+    To see the list of approved projects, check out the official Sample Programs projects list. 
     """
 
 
@@ -129,7 +129,7 @@ class ReadMeCatalog:
         program_list = _generate_program_list(language)
         page.add_header(_generate_program_list_header(language.total_programs(), self.repo.total_approved_projects()), level=2)
         page.add_paragraph(_get_sample_programs_text())\
-            .insert_link("Sample Programs docs", "https://sample-programs.therenegadecoder.com/")
+            .insert_link("Sample Programs project list", "https://sample-programs.therenegadecoder.com/projects/")
         page.add_element(MDList(program_list))
 
         # Missing Programs List
