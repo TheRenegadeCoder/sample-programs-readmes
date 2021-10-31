@@ -59,6 +59,7 @@ def _get_sample_programs_text() -> str:
     issue query featuring a possible article request issue. If an article request issue 
     doesn't exist, we encourage you to create one. Meanwhile, code snippets preceded 
     by :white_check_mark: link to an existing article which provides further documentation.
+    To see the list of approved projects, check out the official Sample Programs docs. 
     """
 
 
@@ -95,7 +96,7 @@ def _generate_credit() -> Paragraph:
 def _generate_program_list_header(program_count: int, total_program_count: int):
     i = int(((program_count / total_program_count) * 4))
     emojis = [":disappointed:", ":thinking:", ":relaxed:", ":smile:", ":partying_face:"]
-    return f"Sample Programs List — {program_count}/{total_program_count} {emojis[i]}"
+    return f"Sample Programs List - {program_count}/{total_program_count} {emojis[i]}"
 
 
 class ReadMeCatalog:
@@ -127,8 +128,16 @@ class ReadMeCatalog:
         # Sample Programs List
         program_list = _generate_program_list(language)
         page.add_header(_generate_program_list_header(language.total_programs(), self.repo.total_approved_projects()), level=2)
-        page.add_paragraph(_get_sample_programs_text())
+        page.add_paragraph(_get_sample_programs_text())\
+            .insert_link("Sample Programs docs", "https://sample-programs.therenegadecoder.com/")
         page.add_element(MDList(program_list))
+
+        # Missing Programs List
+        page.add_header("Missing Programs", level=2)
+        page.add_paragraph(
+            f"The following list contains all of the approved programs that are not currently implemented in {language}:"
+        )
+        page.add_element(MDList(language.missing_programs()))
 
         # Testing
         page.add_header("Testing", level=2)
