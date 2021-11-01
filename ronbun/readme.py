@@ -79,8 +79,10 @@ def _generate_missing_program_list(language: str, missing_programs: list[str]):
     list_items = list()
     missing_programs.sort()
     for program in missing_programs:
-        url = issue_url_template_base + issue_url_template_query.format(project=program, language=language)
-        program_item = Paragraph([program]).insert_link(program, url)
+        program_name = " ".join(program.split("-")).title()
+        program_query = "+".join(program_name.split())
+        url = issue_url_template_base + issue_url_template_query.format(project=program_query, language=language)
+        program_item = Paragraph([program_name]).insert_link(program_name, url)
         list_items.append(program_item)
     return list_items
 
