@@ -1,14 +1,16 @@
 import argparse
 import logging
 import ssl
-from urllib import request
-from xml.etree import ElementTree
 
 from snakemd import Document, InlineText, MDList, Paragraph
 from subete import LanguageCollection, Repo
 
 
 logger = logging.getLogger(__name__)
+
+
+issue_url_template_base = "https://github.com/TheRenegadeCoder/sample-programs/issues/new"
+issue_url_template_query = "?assignees=&labels=enhancement&template=code-snippet-request.md&title=Add+{project}+in+{language}"
 
 
 def main():
@@ -54,16 +56,6 @@ def _get_intro_text(language: LanguageCollection) -> Paragraph:
     return paragraph
 
 
-def _get_sample_programs_text() -> str:
-    return """
-    Below, you'll find a list of code snippets in this collection.
-    Code snippets preceded by :warning: link to a GitHub 
-    issue query featuring a possible article request issue. If an article request issue 
-    doesn't exist, we encourage you to create one. Meanwhile, code snippets preceded 
-    by :white_check_mark: link to an existing article which provides further documentation.
-    """
-
-
 def _generate_program_list(language: LanguageCollection) -> list:
     """
     A helper function which generates a list of programs for the README.
@@ -83,19 +75,18 @@ def _generate_program_list(language: LanguageCollection) -> list:
     return list_items
 
 
-def _get_complete_program_list() -> list:
-    """
-    A helper function which retrieves the entire list of eligible programs from the
-    documentation website.
-    """
-    programs = list()
-    logger.info(f"Attempting to open https://sample-programs.therenegadecoder.com/sitemap.xml")
-    xml_data = request.urlopen("https://sample-programs.therenegadecoder.com/sitemap.xml")
-    for child in ElementTree.parse(xml_data).getroot():
-        url = child[0].text
-        if "projects" in url and len(url.split("/")) == 6:
-            programs.append(url.split("/")[4])
-    return sorted(programs)
+def _generate_missing_program_list(language: str, missing_programs: list[str]):
+    list_items = list()
+    missing_programs.sort()
+    for program in missing_programs:
+        program_name = " ".join(program.split("-")).title()
+        program_query = "+".join(program_name.split())
+        url = issue_url_template_base + issue_url_template_query.format(project=program_query, language=language)
+        program_item = Paragraph([f":x: {program_name} [Requirements]"])\
+            .insert_link(program_name, url)\
+            .insert_link("Requirements", f"https://sample-programs.therenegadecoder.com/projects/{program}")
+        list_items.append(program_item)
+    return list_items
 
 
 def _generate_credit() -> Paragraph:
@@ -109,10 +100,10 @@ def _generate_credit() -> Paragraph:
     return p
 
 
-def _generate_program_list_header(program_list, total_programs):
-    i = int(((len(program_list) / len(total_programs)) * 4))
+def _generate_program_list_header(program_count: int, total_program_count: int):
+    i = int(((program_count / total_program_count) * 4))
     emojis = [":disappointed:", ":thinking:", ":relaxed:", ":smile:", ":partying_face:"]
-    return f"Sample Programs List — {len(program_list)}/{len(total_programs)} {emojis[i]}"
+    return f"Sample Programs List - {program_count}/{total_program_count} {emojis[i]}"
 
 
 class ReadMeCatalog:
@@ -127,7 +118,6 @@ class ReadMeCatalog:
         """
         self.repo: Repo = repo
         self.pages: dict[str, Document] = dict()
-        self._programs = _get_complete_program_list()
         self._build_readmes()
 
     def _build_readme(self, language: LanguageCollection) -> None:
@@ -142,11 +132,45 @@ class ReadMeCatalog:
         page.add_header(f"Sample Programs in {language}")
         page.add_element(_get_intro_text(language))
 
-        # Sample Programs List
+        # Sample Programs Section
         program_list = _generate_program_list(language)
-        page.add_header(_generate_program_list_header(program_list, self._programs), level=2)
-        page.add_paragraph(_get_sample_programs_text())
+        page.add_header(_generate_program_list_header(
+            language.total_programs(),
+            self.repo.total_approved_projects()),
+            level=2
+        )
+        page.add_paragraph(
+            f"""
+            In this section, we feature a list of completed and missing programs in {language}. See above for the
+            current amount of completed programs in {language}. If you see a program that is missing and would like to 
+            add it, please submit an issue, so we can assign it to you. 
+            """.strip()
+        )
+
+        # Completed Programs List
+        page.add_header("Completed Programs", level=3)
+        page.add_paragraph(
+            f"""
+            Below, you'll find a list of completed code snippets in {language}. Code snippets preceded by :warning: 
+            link to a GitHub issue query featuring a possible article request issue. If an article request issue 
+            doesn't exist, we encourage you to create one. Meanwhile, code snippets preceded by :white_check_mark: 
+            link to an existing article which provides further documentation. To see the list of approved projects, 
+            check out the official Sample Programs projects list. 
+            """.strip()
+        ).insert_link("Sample Programs project list", "https://sample-programs.therenegadecoder.com/projects/")
         page.add_element(MDList(program_list))
+
+        # Missing Programs List
+        missing_programs_list = _generate_missing_program_list(str(language), language.missing_programs())
+        page.add_header("Missing Programs", level=3)
+        page.add_paragraph(
+            f"""
+            The following list contains all of the approved programs that are not currently implemented in {language}.
+            Click on the name of the project to easily open an issue in GitHub. Alternatively, click requirements
+            to check out the description of the project. 
+            """.strip()
+        )
+        page.add_element(MDList(missing_programs_list))
 
         # Testing
         page.add_header("Testing", level=2)
