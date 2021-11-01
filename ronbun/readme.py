@@ -82,7 +82,7 @@ def _generate_missing_program_list(language: str, missing_programs: list[str]):
         program_name = " ".join(program.split("-")).title()
         program_query = "+".join(program_name.split())
         url = issue_url_template_base + issue_url_template_query.format(project=program_query, language=language)
-        program_item = Paragraph([f"{program_name} [Requirements]"])\
+        program_item = Paragraph([f":x: {program_name} [Requirements]"])\
             .insert_link(program_name, url)\
             .insert_link("Requirements", f"https://sample-programs.therenegadecoder.com/projects/{program}")
         list_items.append(program_item)
