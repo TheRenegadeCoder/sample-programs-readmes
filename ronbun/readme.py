@@ -141,10 +141,9 @@ class ReadMeCatalog:
         )
         page.add_paragraph(
             f"""
-            In this section, we feature all of the approved sample programs for this repo. Specifically, this
-            section details all of the {language} sample programs in two sections: completed and missing. If
-            you see a program that is missing and would like to add it, please submit an issue, so we can
-            assign it to you. 
+            In this section, we feature a list of completed and missing programs in {language}. See above for the
+            current amount of completed programs in {language}. If you see a program that is missing and would like to 
+            add it, please submit an issue, so we can assign it to you. 
             """.strip()
         )
 
