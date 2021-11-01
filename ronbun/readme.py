@@ -166,7 +166,9 @@ class ReadMeCatalog:
         page.add_header("Missing Programs", level=3)
         page.add_paragraph(
             f"""
-            The following list contains all of the approved programs that are not currently implemented in {language}:
+            The following list contains all of the approved programs that are not currently implemented in {language}.
+            Click on the name of the project to easily open an issue in GitHub. Alternatively, click requirements
+            to check out the description of the project. 
             """.strip()
         )
         page.add_element(MDList(missing_programs_list))
