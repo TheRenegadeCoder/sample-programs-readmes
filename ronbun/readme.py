@@ -9,6 +9,10 @@ from subete import LanguageCollection, Repo
 logger = logging.getLogger(__name__)
 
 
+issue_url_template_base = "https://github.com/TheRenegadeCoder/sample-programs/issues/new"
+issue_url_template_query = "?assignees=&labels=enhancement&template=code-snippet-request.md&title=Add+{project}+in+{language}"
+
+
 def main():
     ssl._create_default_https_context = ssl._create_unverified_context
     args = _get_args()
@@ -71,6 +75,16 @@ def _generate_program_list(language: LanguageCollection) -> list:
     return list_items
 
 
+def _generate_missing_program_list(language: str, missing_programs: list[str]):
+    list_items = list()
+    missing_programs.sort()
+    for program in missing_programs:
+        url = issue_url_template_base + issue_url_template_base.format(program=program, langauge=language)
+        program_list = Paragraph(program).insert_link(program, url)
+        list_items.append(program_list)
+    return list_items
+
+
 def _generate_credit() -> Paragraph:
     p = Paragraph([
         """
@@ -123,7 +137,7 @@ class ReadMeCatalog:
         )
         page.add_paragraph(
             f"""
-            In this section, we feature all of the approve sampled programs for this repo. Specifically, this
+            In this section, we feature all of the approved sample programs for this repo. Specifically, this
             section details all of the {language} sample programs in two sections: completed and missing. If
             you see a program that is missing and would like to add it, please submit an issue, so we can
             assign it to you. 
@@ -144,13 +158,14 @@ class ReadMeCatalog:
         page.add_element(MDList(program_list))
 
         # Missing Programs List
+        missing_programs_list = _generate_missing_program_list(str(language), language.missing_programs())
         page.add_header("Missing Programs", level=3)
         page.add_paragraph(
             f"""
             The following list contains all of the approved programs that are not currently implemented in {language}:
             """.strip()
         )
-        page.add_element(MDList(language.missing_programs()))
+        page.add_element(MDList(missing_programs_list))
 
         # Testing
         page.add_header("Testing", level=2)
