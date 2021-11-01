@@ -52,17 +52,6 @@ def _get_intro_text(language: LanguageCollection) -> Paragraph:
     return paragraph
 
 
-def _get_sample_programs_text() -> str:
-    return """
-    Below, you'll find a list of code snippets in this collection.
-    Code snippets preceded by :warning: link to a GitHub 
-    issue query featuring a possible article request issue. If an article request issue 
-    doesn't exist, we encourage you to create one. Meanwhile, code snippets preceded 
-    by :white_check_mark: link to an existing article which provides further documentation.
-    To see the list of approved projects, check out the official Sample Programs projects list. 
-    """
-
-
 def _generate_program_list(language: LanguageCollection) -> list:
     """
     A helper function which generates a list of programs for the README.
@@ -125,17 +114,41 @@ class ReadMeCatalog:
         page.add_header(f"Sample Programs in {language}")
         page.add_element(_get_intro_text(language))
 
-        # Sample Programs List
+        # Sample Programs Section
         program_list = _generate_program_list(language)
-        page.add_header(_generate_program_list_header(language.total_programs(), self.repo.total_approved_projects()), level=2)
-        page.add_paragraph(_get_sample_programs_text())\
-            .insert_link("Sample Programs project list", "https://sample-programs.therenegadecoder.com/projects/")
+        page.add_header(_generate_program_list_header(
+            language.total_programs(),
+            self.repo.total_approved_projects()),
+            level=2
+        )
+        page.add_paragraph(
+            f"""
+            In this section, we feature all of the approve sampled programs for this repo. Specifically, this
+            section details all of the {language} sample programs in two sections: completed and missing. If
+            you see a program that is missing and would like to add it, please submit an issue, so we can
+            assign it to you. 
+            """.strip()
+        )
+
+        # Completed Programs List
+        page.add_header("Completed Programs", level=3)
+        page.add_paragraph(
+            f"""
+            Below, you'll find a list of completed code snippets in {language}. Code snippets preceded by :warning: 
+            link to a GitHub issue query featuring a possible article request issue. If an article request issue 
+            doesn't exist, we encourage you to create one. Meanwhile, code snippets preceded by :white_check_mark: 
+            link to an existing article which provides further documentation. To see the list of approved projects, 
+            check out the official Sample Programs projects list. 
+            """.strip()
+        ).insert_link("Sample Programs project list", "https://sample-programs.therenegadecoder.com/projects/")
         page.add_element(MDList(program_list))
 
         # Missing Programs List
-        page.add_header("Missing Programs", level=2)
+        page.add_header("Missing Programs", level=3)
         page.add_paragraph(
-            f"The following list contains all of the approved programs that are not currently implemented in {language}:"
+            f"""
+            The following list contains all of the approved programs that are not currently implemented in {language}:
+            """.strip()
         )
         page.add_element(MDList(language.missing_programs()))
 
