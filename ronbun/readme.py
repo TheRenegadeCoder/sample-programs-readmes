@@ -84,7 +84,7 @@ def _generate_missing_program_list(language: str, missing_programs: list[str]):
         url = issue_url_template_base + issue_url_template_query.format(project=program_query, language=language)
         program_item = Paragraph([f":x: {program_name} [Requirements]"])\
             .insert_link(program_name, url)\
-            .insert_link("Requirements", f"https://sample-programs.therenegadecoder.com/projects/{program}")
+            .insert_link("Requirements", f"https://sampleprograms.io/projects/{program}")
         list_items.append(program_item)
     return list_items
 
@@ -157,7 +157,7 @@ class ReadMeCatalog:
             link to an existing article which provides further documentation. To see the list of approved projects, 
             check out the official Sample Programs projects list. 
             """.strip()
-        ).insert_link("Sample Programs project list", "https://sample-programs.therenegadecoder.com/projects/")
+        ).insert_link("Sample Programs project list", "https://sampleprograms.io/projects/")
         page.add_element(MDList(program_list))
 
         # Missing Programs List
