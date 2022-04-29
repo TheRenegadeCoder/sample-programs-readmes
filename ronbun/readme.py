@@ -3,7 +3,7 @@ import logging
 import ssl
 
 from snakemd import Document, InlineText, MDList, Paragraph
-from subete import LanguageCollection, Repo
+from subete import LanguageCollection, Repo, Project
 
 
 logger = logging.getLogger(__name__)
@@ -63,11 +63,11 @@ def _generate_program_list(language: LanguageCollection) -> list:
     :return: a list of sample programs list items
     """
     list_items = list()
-    for program in language.sample_programs().values():
+    for program in language:
         program_name = f"{program}"
         program_line = Paragraph([f":white_check_mark: {program_name} [Requirements]"]) \
             .insert_link(program_name, program.documentation_url()) \
-            .insert_link("Requirements", program.requirements_url())
+            .insert_link("Requirements", program.project().requirements_url())
         if not program_line.verify_urls()[program.documentation_url()]:
             program_line.replace(":white_check_mark:", ":warning:") \
                 .replace_link(program.documentation_url(), program.article_issue_query_url())
@@ -77,9 +77,10 @@ def _generate_program_list(language: LanguageCollection) -> list:
 
 def _generate_missing_program_list(language: str, missing_programs: list[str]):
     list_items = list()
-    missing_programs.sort()
+    missing_programs.sort(key=lambda x: x.name())
     for program in missing_programs:
-        program_name = " ".join(program.split("-")).title()
+        program: Project
+        program_name = program.name()
         program_query = "+".join(program_name.split())
         url = issue_url_template_base + issue_url_template_query.format(project=program_query, language=language)
         program_item = Paragraph([f":x: {program_name} [Requirements]"])\
@@ -203,7 +204,7 @@ class ReadMeCatalog:
         Generates all READMEs for the repo.
         :return: None
         """
-        for _, language in self.repo.language_collections().items():
+        for language in self.repo:
             self._build_readme(language)
 
 
