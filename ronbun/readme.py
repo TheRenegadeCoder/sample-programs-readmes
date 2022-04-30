@@ -75,14 +75,14 @@ def _generate_program_list(language: LanguageCollection) -> list:
     return list_items
 
 
-def _generate_missing_program_list(language: str, missing_programs: list[str]):
+def _generate_missing_program_list(language: LanguageCollection, missing_programs: list[str]):
     list_items = list()
     missing_programs.sort(key=lambda x: x.name())
     for program in missing_programs:
         program: Project
         program_name = program.name()
         program_query = "+".join(program_name.split())
-        url = issue_url_template_base + issue_url_template_query.format(project=program_query, language=language)
+        url = issue_url_template_base + issue_url_template_query.format(project=program_query, language=language.pathlike_name())
         program_item = Paragraph([f":x: {program_name} [Requirements]"])\
             .insert_link(program_name, url)\
             .insert_link("Requirements", program.requirements_url())
@@ -162,7 +162,7 @@ class ReadMeCatalog:
         page.add_element(MDList(program_list))
 
         # Missing Programs List
-        missing_programs_list = _generate_missing_program_list(str(language), language.missing_programs())
+        missing_programs_list = _generate_missing_program_list(language, language.missing_programs())
         page.add_header("Missing Programs", level=3)
         page.add_paragraph(
             f"""
