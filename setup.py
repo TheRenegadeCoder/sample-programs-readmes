@@ -15,7 +15,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     install_requires=[
         "SnakeMD>=0",
-        "subete>=0.9"
+        "subete>=0.11"
     ],
     entry_points={
         "console_scripts": [
