@@ -68,7 +68,7 @@ def _generate_program_list(language: LanguageCollection) -> list:
         program_line = Paragraph([f":white_check_mark: {program_name} [Requirements]"]) \
             .insert_link(program_name, program.documentation_url()) \
             .insert_link("Requirements", program.project().requirements_url())
-        if not program_line.verify_urls()[program.documentation_url()]:
+        if not program.has_docs():
             program_line.replace(":white_check_mark:", ":warning:") \
                 .replace_link(program.documentation_url(), program.article_issue_query_url())
         list_items.append(program_line)
