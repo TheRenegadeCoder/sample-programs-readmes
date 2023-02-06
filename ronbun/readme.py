@@ -20,10 +20,10 @@ def main():
     if not isinstance(numeric_level, int):
         raise ValueError(f'Invalid log level: {args[1]}')
     logging.basicConfig(level=numeric_level)
-    repo = Repo(source_dir=args[0])
+    repo = Repo(sample_programs_repo_dir=args[0])
     readme_catalog = ReadMeCatalog(repo)
     for language, page in readme_catalog.pages.items():
-        page.output_page(f"{args[0]}/{language[0]}/{language}")
+        page.output_page(f"{args[0]}/archive/{language[0]}/{language}")
 
 
 def _get_args() -> tuple:
