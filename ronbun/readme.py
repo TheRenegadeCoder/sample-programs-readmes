@@ -192,8 +192,8 @@ class ReadMeCatalog:
                 f"Docker Image: {test_data['container']['image']}",
                 f"Docker Tag: {test_data['container']['tag']}"
             ])
-        glotter = page.add_paragraph("See the Glotter project for more information on how to create a testinfo file.")
-        glotter.insert_link("Glotter project", "https://github.com/auroq/glotter")
+        glotter = page.add_paragraph("See the Glotter2 project for more information on how to create a testinfo file.")
+        glotter.insert_link("Glotter2 project", "https://github.com/rzuckerm/glotter2")
         page.add_horizontal_rule()
         page.add_element(_generate_credit())
 
