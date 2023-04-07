@@ -1,5 +1,5 @@
-SnakeMD==0.12.1
-subete~=0.14.0
-pytest==6.2.4
-pytest-cov==2.12.1
-setuptools~=57.0.0
+SnakeMD~=2.0.0b1
+subete~=0.14
+pytest~=6.2
+pytest-cov~=2.12
+setuptools~=57.0
