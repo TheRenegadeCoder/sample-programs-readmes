@@ -2,7 +2,7 @@ import argparse
 import logging
 import ssl
 
-from snakemd import Document, InlineText, MDList, Paragraph
+from snakemd import Document, Inline, MDList, Paragraph
 from subete import LanguageCollection, Repo, Project
 
 
@@ -23,7 +23,7 @@ def main():
     repo = Repo(sample_programs_repo_dir=args[0])
     readme_catalog = ReadMeCatalog(repo)
     for language, page in readme_catalog.pages.items():
-        page.output_page(f"{args[0]}/archive/{language[0]}/{language}")
+        page.dump("README", dir=f"{args[0]}/archive/{language[0]}/{language}")
 
 
 def _get_args() -> tuple:
@@ -49,7 +49,7 @@ def _get_args() -> tuple:
 
 def _get_intro_text(language: LanguageCollection) -> Paragraph:
     paragraph = Paragraph([f"Welcome to Sample Programs in {language}! "])
-    text = InlineText("here.", url=language.lang_docs_url())
+    text = Inline("here.", link=language.lang_docs_url())
     if text.verify_url():
         paragraph.add(f"To find documentation related to the {language} code in this repo, look ")
         paragraph.add(text)
@@ -130,12 +130,12 @@ class ReadMeCatalog:
         page = Document("README")
 
         # Introduction
-        page.add_header(f"Sample Programs in {language}")
-        page.add_element(_get_intro_text(language))
+        page.add_heading(f"Sample Programs in {language}")
+        page.add_block(_get_intro_text(language))
 
         # Sample Programs Section
         program_list = _generate_program_list(language)
-        page.add_header(_generate_program_list_header(
+        page.add_heading(_generate_program_list_header(
             language.total_programs(),
             self.repo.total_approved_projects()),
             level=2
@@ -149,7 +149,7 @@ class ReadMeCatalog:
         )
 
         # Completed Programs List
-        page.add_header("Completed Programs", level=3)
+        page.add_heading("Completed Programs", level=3)
         page.add_paragraph(
             f"""
             Below, you'll find a list of completed code snippets in {language}. Code snippets preceded by :warning: 
@@ -159,11 +159,11 @@ class ReadMeCatalog:
             check out the official Sample Programs projects list. 
             """.strip()
         ).insert_link("Sample Programs project list", "https://sampleprograms.io/projects/")
-        page.add_element(MDList(program_list))
+        page.add_block(MDList(program_list))
 
         # Missing Programs List
         missing_programs_list = _generate_missing_program_list(language, language.missing_programs())
-        page.add_header("Missing Programs", level=3)
+        page.add_heading("Missing Programs", level=3)
         page.add_paragraph(
             f"""
             The following list contains all of the approved programs that are not currently implemented in {language}.
@@ -171,10 +171,10 @@ class ReadMeCatalog:
             to check out the description of the project. 
             """.strip()
         )
-        page.add_element(MDList(missing_programs_list))
+        page.add_block(MDList(missing_programs_list))
 
         # Testing
-        page.add_header("Testing", level=2)
+        page.add_heading("Testing", level=2)
         test_data = language.testinfo()
         if not test_data:
             page.add_paragraph(
@@ -195,7 +195,7 @@ class ReadMeCatalog:
         glotter = page.add_paragraph("See the Glotter2 project for more information on how to create a testinfo file.")
         glotter.insert_link("Glotter2 project", "https://github.com/rzuckerm/glotter2")
         page.add_horizontal_rule()
-        page.add_element(_generate_credit())
+        page.add_block(_generate_credit())
 
         self.pages[language.pathlike_name()] = page
 
