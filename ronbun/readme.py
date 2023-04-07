@@ -162,16 +162,17 @@ class ReadMeCatalog:
         page.add_block(MDList(program_list))
 
         # Missing Programs List
-        missing_programs_list = _generate_missing_program_list(language, language.missing_programs())
-        page.add_heading("Missing Programs", level=3)
-        page.add_paragraph(
-            f"""
-            The following list contains all of the approved programs that are not currently implemented in {language}.
-            Click on the name of the project to easily open an issue in GitHub. Alternatively, click requirements
-            to check out the description of the project. 
-            """.strip()
-        )
-        page.add_block(MDList(missing_programs_list))
+        if language.missing_programs_count() > 0:
+            missing_programs_list = _generate_missing_program_list(language, language.missing_programs())
+            page.add_heading("Missing Programs", level=3)
+            page.add_paragraph(
+                f"""
+                The following list contains all of the approved programs that are not currently implemented in {language}.
+                Click on the name of the project to easily open an issue in GitHub. Alternatively, click requirements
+                to check out the description of the project. 
+                """.strip()
+            )
+            page.add_block(MDList(missing_programs_list))
 
         # Testing
         page.add_heading("Testing", level=2)
