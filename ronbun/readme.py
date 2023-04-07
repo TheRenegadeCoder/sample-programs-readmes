@@ -50,7 +50,7 @@ def _get_args() -> tuple:
 def _get_intro_text(language: LanguageCollection) -> Paragraph:
     paragraph = Paragraph([f"Welcome to Sample Programs in {language}! "])
     text = Inline("here.", link=language.lang_docs_url())
-    if text.verify_url():
+    if language.has_docs:
         paragraph.add(f"To find documentation related to the {language} code in this repo, look ")
         paragraph.add(text)
     return paragraph
@@ -127,7 +127,7 @@ class ReadMeCatalog:
         :param language: a programming language collection (e.g., Python)
         :return: None
         """
-        page = Document("README")
+        page = Document()
 
         # Introduction
         page.add_heading(f"Sample Programs in {language}")
