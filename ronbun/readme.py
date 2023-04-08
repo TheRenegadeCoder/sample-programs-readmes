@@ -1,6 +1,7 @@
 import argparse
 import logging
 import ssl
+import urllib.parse
 
 from snakemd import Document, Inline, MDList, Paragraph
 from subete import LanguageCollection, Repo, Project
@@ -85,7 +86,7 @@ def _generate_missing_program_list(language: LanguageCollection, missing_program
         url = issue_url_template_base + issue_url_template_query.format(
             label=program_query.lower(),
             project=program_query,
-            language=language.pathlike_name().title()
+            language=urllib.parse.quote(language.name())
         )
         program_item = Paragraph([f":x: {program_name} [Requirements]"])\
             .insert_link(program_name, url)\
