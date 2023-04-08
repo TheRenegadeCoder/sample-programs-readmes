@@ -1,5 +1,5 @@
 SnakeMD==0.12.1
-subete~=0.14.0
+subete~=0.15.0
 pytest==6.2.4
 pytest-cov==2.12.1
 setuptools~=57.0.0
