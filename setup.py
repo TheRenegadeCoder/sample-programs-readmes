@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="ronbun",
-    version="0.7.1",
+    version="0.7.2",
     author="The Renegade Coder",
     author_email="jeremy.grifski@therenegadecoder.com",
     description="The Sample Programs README Automation Tool",
@@ -15,7 +15,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     install_requires=[
         "SnakeMD>=2.0.0b1",
-        "subete>=0.11"
+        "subete>=0.15.1"
     ],
     entry_points={
         "console_scripts": [

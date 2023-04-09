@@ -1,6 +1,7 @@
 import argparse
 import logging
 import ssl
+import urllib.parse
 
 from snakemd import Document, Inline, MDList, Paragraph
 from subete import LanguageCollection, Repo, Project
@@ -10,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 issue_url_template_base = "https://github.com/TheRenegadeCoder/sample-programs/issues/new"
-issue_url_template_query = "?assignees=&labels=enhancement&template=code-snippet-request.md&title=Add+{project}+in+{language}"
+issue_url_template_query = "?assignees=&labels=enhancement,{label}&template=code-snippet-request.md&title=Add+{project}+in+{language}"
 
 
 def main():
@@ -82,7 +83,11 @@ def _generate_missing_program_list(language: LanguageCollection, missing_program
         program: Project
         program_name = program.name()
         program_query = "+".join(program_name.split())
-        url = issue_url_template_base + issue_url_template_query.format(project=program_query, language=language.pathlike_name())
+        url = issue_url_template_base + issue_url_template_query.format(
+            label=program_query.lower(),
+            project=program_query,
+            language=urllib.parse.quote(language.name())
+        )
         program_item = Paragraph([f":x: {program_name} [Requirements]"])\
             .insert_link(program_name, url)\
             .insert_link("Requirements", program.requirements_url())
