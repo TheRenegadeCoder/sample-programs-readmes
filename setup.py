@@ -14,7 +14,7 @@ setuptools.setup(
     url="https://github.com/TheRenegadeCoder/sample-programs-readmes",
     packages=setuptools.find_packages(),
     install_requires=[
-        "SnakeMD>=2.0.0b1",
+        "SnakeMD>=2.0.0b2",
         "subete>=0.15.1"
     ],
     entry_points={
