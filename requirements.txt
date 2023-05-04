@@ -1,5 +1,0 @@
-snakemd~=2.0.0b2
-subete~=0.15.1
-pytest~=6.2
-pytest-cov~=2.12
-setuptools~=57.0
