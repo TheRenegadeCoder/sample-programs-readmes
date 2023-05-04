@@ -24,7 +24,7 @@ def main():
     repo = Repo(sample_programs_repo_dir=args[0])
     readme_catalog = ReadMeCatalog(repo)
     for language, page in readme_catalog.pages.items():
-        page.dump("README", dir=f"{args[0]}/archive/{language[0]}/{language}")
+        page.dump("README", directory=f"{args[0]}/archive/{language[0]}/{language}")
 
 
 def _get_args() -> tuple:
