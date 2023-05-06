@@ -87,7 +87,7 @@ def _generate_program_list(language: LanguageCollection) -> list:
     return list_items
 
 
-def _generate_missing_program_list(language: LanguageCollection, missing_programs: list[str]) -> list[str]:
+def _generate_missing_program_list(language: LanguageCollection, missing_programs: list[str]) -> list[Paragraph]:
     """
     Generates the list of programs that are missing in Markdown.
 
@@ -95,7 +95,7 @@ def _generate_missing_program_list(language: LanguageCollection, missing_program
     :param missing_programs: the list of programs missing from the language collection
     :return: the missing programs lines as Markdown strings
     """
-    list_items = list()
+    list_items: list[Paragraph] = list()
     missing_programs.sort(key=lambda x: x.name())
     for program in missing_programs:
         program: Project
