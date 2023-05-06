@@ -139,7 +139,7 @@ def _generate_program_list_header(program_count: int, total_program_count: int) 
 
 class ReadMeCatalog:
     """
-    An representation of the collection of READMEs in the Sample Programs repo.
+    A representation of the collection of READMEs in the Sample Programs repo.
     """
 
     def __init__(self, repo: Repo):
