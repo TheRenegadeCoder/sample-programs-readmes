@@ -124,7 +124,14 @@ def _generate_credit() -> Paragraph:
     return p
 
 
-def _generate_program_list_header(program_count: int, total_program_count: int):
+def _generate_program_list_header(program_count: int, total_program_count: int) -> str:
+    """
+    Creates the heading test for the programs list.
+
+    :param program_count: the number of programs completed in the language
+    :param total_program_count: the total number of possible programs
+    :return: the heading about the program list
+    """
     i = int(((program_count / total_program_count) * 4))
     emojis = [":disappointed:", ":thinking:", ":relaxed:", ":smile:", ":partying_face:"]
     return f"Sample Programs List - {program_count}/{total_program_count} {emojis[i]}"
