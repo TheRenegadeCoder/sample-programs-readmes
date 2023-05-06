@@ -2,7 +2,7 @@
 [tool.poetry]
 name = "ronbun"
 description = "The Sample Programs README Automation Tool"
-version = "0.7.3"
+version = "0.7.4"
 license = "MIT"
 
 authors = [
@@ -21,7 +21,7 @@ classifiers=[
 ]
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.8"
 snakemd = "^2.2.0b1"
 subete = "^0.16"
 
