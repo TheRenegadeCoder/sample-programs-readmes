@@ -15,6 +15,9 @@ issue_url_template_query = "?assignees=&labels=enhancement,{label}&template=code
 
 
 def main():
+    """
+    The main drop in script for the README generation.
+    """
     ssl._create_default_https_context = ssl._create_unverified_context
     args = _get_args()
     numeric_level = getattr(logging, args[1].upper(), None)
@@ -31,6 +34,7 @@ def _get_args() -> tuple:
     """
     A helper function which gets the log level from 
     the command line. Set as warning from default. 
+
     :return: the log level provided by the user
     """
     parser = argparse.ArgumentParser()
@@ -49,6 +53,12 @@ def _get_args() -> tuple:
 
 
 def _get_intro_text(language: LanguageCollection) -> Paragraph:
+    """
+    Generates the test for the introduction of the README.
+
+    :param language: the language to generate from the LanguageCollection
+    :return: the introduction paragraph in the README
+    """
     paragraph = Paragraph([f"Welcome to Sample Programs in {language}! "])
     text = Inline("here.", link=language.lang_docs_url())
     if language.has_docs:
@@ -60,6 +70,7 @@ def _get_intro_text(language: LanguageCollection) -> Paragraph:
 def _generate_program_list(language: LanguageCollection) -> list:
     """
     A helper function which generates a list of programs for the README.
+
     :param language: a language collection
     :return: a list of sample programs list items
     """
@@ -76,7 +87,14 @@ def _generate_program_list(language: LanguageCollection) -> list:
     return list_items
 
 
-def _generate_missing_program_list(language: LanguageCollection, missing_programs: list[str]):
+def _generate_missing_program_list(language: LanguageCollection, missing_programs: list[str]) -> list[str]:
+    """
+    Generates the list of programs that are missing in Markdown.
+
+    :param language: the language with missing programs
+    :param missing_programs: the list of programs missing from the language collection
+    :return: the missing programs lines as Markdown strings
+    """
     list_items = list()
     missing_programs.sort(key=lambda x: x.name())
     for program in missing_programs:
