@@ -251,8 +251,10 @@ class ReadMeCatalog:
             )
             page.add_code("folder:\n  extension:\n  naming:\n\ncontainer:\n  image:\n  tag:\n  cmd:", lang="yml")
 
-        glotter = page.add_paragraph("See the Glotter2 project for more information on how to create a testinfo file.")
-        glotter.insert_link("Glotter2 project", "https://github.com/rzuckerm/glotter2")
+        if not untestable_data:
+            glotter = page.add_paragraph("See the Glotter2 project for more information on how to create a testinfo file.")
+            glotter.insert_link("Glotter2 project", "https://github.com/rzuckerm/glotter2")
+
         page.add_horizontal_rule()
         page.add_block(_generate_credit())
 
