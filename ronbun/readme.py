@@ -1,3 +1,4 @@
+from __future__ import annotations
 import argparse
 import logging
 import ssl
@@ -12,6 +13,13 @@ logger = logging.getLogger(__name__)
 
 issue_url_template_base = "https://github.com/TheRenegadeCoder/sample-programs/issues/new"
 issue_url_template_query = "?assignees=&labels=enhancement,{label}&template=code-snippet-request.md&title=Add+{project}+in+{language}"
+naming_conventions = {
+    "camel": "helloWorld",
+    "hyphen": "hello-world",
+    "lower": "helloworld",
+    "pascal": "HelloWorld",
+    "underscore": "hello_world"
+}
 
 
 def main():
@@ -207,7 +215,34 @@ class ReadMeCatalog:
         # Testing
         page.add_heading("Testing", level=2)
         test_data = language.testinfo()
-        if not test_data:
+        untestable_data = language.untestable_info()
+        if test_data:
+            extension = test_data["folder"]["extension"]
+            naming = test_data["folder"]["naming"]
+            page.add_paragraph(
+                f"The following list shares details about how we name all Sample Programs in {language}:"
+            )
+            page.add_unordered_list([
+                f"Extension: {extension}",
+                f"Naming Convention: {naming}"
+            ])
+
+            page.add_paragraph('For example, the "Hello World" sample would be named this:')
+            page.add_unordered_list([f"{naming_conventions[naming]}{extension}"])
+
+            page.add_paragraph(
+                f"The following list shares details about what we're using to test all Sample Programs in {language}:"
+            )
+            page.add_unordered_list([
+                f"Docker Image: {test_data['container']['image']}",
+                f"Docker Tag: {test_data['container']['tag']}"
+            ])
+        elif untestable_data:
+                page.add_paragraph(
+                    f"{language} cannot be tested for the following reason:"
+                )
+                page.add_unordered_list([untestable_data[0]["reason"]])
+        else:
             page.add_paragraph(
                 """
                 This language currently does not feature testing. If you'd like to help in the efforts to test all of 
@@ -215,16 +250,11 @@ class ReadMeCatalog:
                 """
             )
             page.add_code("folder:\n  extension:\n  naming:\n\ncontainer:\n  image:\n  tag:\n  cmd:", lang="yml")
-        else:
-            page.add_paragraph(
-                f"The following list shares details about what we're using to test all Sample Programs in {language}."
-            )
-            page.add_unordered_list([
-                f"Docker Image: {test_data['container']['image']}",
-                f"Docker Tag: {test_data['container']['tag']}"
-            ])
-        glotter = page.add_paragraph("See the Glotter2 project for more information on how to create a testinfo file.")
-        glotter.insert_link("Glotter2 project", "https://github.com/rzuckerm/glotter2")
+
+        if not untestable_data:
+            glotter = page.add_paragraph("See the Glotter2 project for more information on how to create a testinfo file.")
+            glotter.insert_link("Glotter2 project", "https://github.com/rzuckerm/glotter2")
+
         page.add_horizontal_rule()
         page.add_block(_generate_credit())
 
