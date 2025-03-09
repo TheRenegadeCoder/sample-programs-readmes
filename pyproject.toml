@@ -2,7 +2,7 @@
 [tool.poetry]
 name = "ronbun"
 description = "The Sample Programs README Automation Tool"
-version = "0.8.0"
+version = "0.8.1"
 license = "MIT"
 
 authors = [
