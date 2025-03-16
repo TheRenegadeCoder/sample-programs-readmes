@@ -20,9 +20,9 @@ classifiers=[
 ]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
 snakemd = "^2.2.0"
-subete = "^0.19.0"
+subete = "^0.20.0"
 
 [tool.poetry.group.test.dependencies]
 coverage = "^7.2"

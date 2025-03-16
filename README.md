@@ -1,3 +1,3 @@
-# how-to-python-readme
+# sample-programs-readme
 
-README automation for the "How to Python Code" repository
+README automation for the "Sample Programs" repository
