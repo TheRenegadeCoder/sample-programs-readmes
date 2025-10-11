@@ -4,7 +4,7 @@ import logging
 import ssl
 import urllib.parse
 
-from snakemd import Document, Inline, MDList, Paragraph
+from snakemd import Document, Inline, MDList, Paragraph, Quote
 from subete import LanguageCollection, Repo, Project
 
 
@@ -60,9 +60,17 @@ def _get_args() -> tuple:
     return options.path, options.log
 
 
+def _get_note() -> Quote:
+    """
+    Generates the text for the note for the README.
+
+    :return: the note quote in the README
+    """
+    return Quote("[!NOTE]\n**This page is auto-generated. DO NOT EDIT!**")
+
 def _get_intro_text(language: LanguageCollection) -> Paragraph:
     """
-    Generates the test for the introduction of the README.
+    Generates the text for the introduction of the README.
 
     :param language: the language to generate from the LanguageCollection
     :return: the introduction paragraph in the README
@@ -169,6 +177,7 @@ class ReadMeCatalog:
 
         # Introduction
         page.add_heading(f"Sample Programs in {language}")
+        page.add_block(_get_note())
         page.add_block(_get_intro_text(language))
 
         # Sample Programs Section
