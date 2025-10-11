@@ -64,9 +64,14 @@ def _get_note() -> Quote:
     """
     Generates the text for the note for the README.
 
-    :return: the note quote in the README
+    :return: the note quote block in the README
     """
-    return Quote("[!NOTE]\n**This page is auto-generated. DO NOT EDIT!**")
+    quote_lines = [
+        "[!NOTE]",
+        Inline("This page is auto-generated. DO NOT EDIT!", bold=True)
+    ]
+    return Quote("\n".join(str(line) for line in quote_lines))
+
 
 def _get_intro_text(language: LanguageCollection) -> Paragraph:
     """
@@ -75,12 +80,15 @@ def _get_intro_text(language: LanguageCollection) -> Paragraph:
     :param language: the language to generate from the LanguageCollection
     :return: the introduction paragraph in the README
     """
-    paragraph = Paragraph([f"Welcome to Sample Programs in {language}! "])
-    text = Inline("here.", link=language.lang_docs_url())
+    sections = [f"Welcome to Sample Programs in {language}!"]
     if language.has_docs:
-        paragraph.add(f"To find documentation related to the {language} code in this repo, look ")
-        paragraph.add(text)
-    return paragraph
+        sections += [
+            f" To find documentation related to the {language} code in this repo, look ",
+            Inline("here", link=language.lang_docs_url()),
+            "."
+        ]
+
+    return Paragraph(sections)
 
 
 def _generate_program_list(language: LanguageCollection) -> list:
@@ -178,6 +186,7 @@ class ReadMeCatalog:
         # Introduction
         page.add_heading(f"Sample Programs in {language}")
         page.add_block(_get_note())
+
         page.add_block(_get_intro_text(language))
 
         # Sample Programs Section
