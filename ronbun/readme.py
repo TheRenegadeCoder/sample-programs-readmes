@@ -186,7 +186,6 @@ class ReadMeCatalog:
         # Introduction
         page.add_heading(f"Sample Programs in {language}")
         page.add_block(_get_note())
-
         page.add_block(_get_intro_text(language))
 
         # Sample Programs Section
