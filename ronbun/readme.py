@@ -4,7 +4,7 @@ import logging
 import ssl
 import urllib.parse
 
-from snakemd import Document, Inline, MDList, Paragraph
+from snakemd import Document, Inline, MDList, Paragraph, Quote
 from subete import LanguageCollection, Repo, Project
 
 
@@ -60,19 +60,35 @@ def _get_args() -> tuple:
     return options.path, options.log
 
 
+def _get_note() -> Quote:
+    """
+    Generates the text for the note for the README.
+
+    :return: the note quote block in the README
+    """
+    quote_lines = [
+        "[!NOTE]",
+        Inline("This page is auto-generated. DO NOT EDIT!", bold=True)
+    ]
+    return Quote("\n".join(str(line) for line in quote_lines))
+
+
 def _get_intro_text(language: LanguageCollection) -> Paragraph:
     """
-    Generates the test for the introduction of the README.
+    Generates the text for the introduction of the README.
 
     :param language: the language to generate from the LanguageCollection
     :return: the introduction paragraph in the README
     """
-    paragraph = Paragraph([f"Welcome to Sample Programs in {language}! "])
-    text = Inline("here.", link=language.lang_docs_url())
+    sections = [f"Welcome to Sample Programs in {language}!"]
     if language.has_docs:
-        paragraph.add(f"To find documentation related to the {language} code in this repo, look ")
-        paragraph.add(text)
-    return paragraph
+        sections += [
+            f" To find documentation related to the {language} code in this repo, look ",
+            Inline("here", link=language.lang_docs_url()),
+            "."
+        ]
+
+    return Paragraph(sections)
 
 
 def _generate_program_list(language: LanguageCollection) -> list:
@@ -169,6 +185,7 @@ class ReadMeCatalog:
 
         # Introduction
         page.add_heading(f"Sample Programs in {language}")
+        page.add_block(_get_note())
         page.add_block(_get_intro_text(language))
 
         # Sample Programs Section
