@@ -4,8 +4,8 @@ import logging
 import ssl
 import urllib.parse
 
-from snakemd import Document, Inline, MDList, Paragraph, Quote
-from subete import LanguageCollection, Repo, Project
+from snakemd import Document, Inline, MDList, Paragraph, Alert
+from subete import LanguageCollection, Repo, Project, LOGGER
 
 
 logger = logging.getLogger(__name__)
@@ -32,6 +32,7 @@ def main():
     if not isinstance(numeric_level, int):
         raise ValueError(f'Invalid log level: {args[1]}')
     logging.basicConfig(level=numeric_level)
+    LOGGER.set_level(logging.WARNING)  # Turn down the subete logging noise
     repo = Repo(sample_programs_repo_dir=args[0])
     readme_catalog = ReadMeCatalog(repo)
     for language, page in readme_catalog.pages.items():
@@ -60,17 +61,14 @@ def _get_args() -> tuple:
     return options.path, options.log
 
 
-def _get_note() -> Quote:
+def _get_note() -> Alert:
     """
     Generates the text for the note for the README.
 
-    :return: the note quote block in the README
+    :return: the note alert block in the README
     """
-    quote_lines = [
-        "[!NOTE]",
-        Inline("This page is auto-generated. DO NOT EDIT!", bold=True)
-    ]
-    return Quote("\n".join(str(line) for line in quote_lines))
+    note = Inline("This page is auto-generated. DO NOT EDIT!", bold=True)
+    return Alert(note, Alert.Kind.NOTE)
 
 
 def _get_intro_text(language: LanguageCollection) -> Paragraph:
