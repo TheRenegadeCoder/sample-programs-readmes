@@ -2,7 +2,7 @@
 [project]
 name = "ronbun"
 description = "The Sample Programs README Automation Tool"
-version = "0.10.0"
+version = "0.10.1"
 license = "MIT"
 
 authors = [
