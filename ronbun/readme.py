@@ -5,7 +5,8 @@ import ssl
 import urllib.parse
 
 from snakemd import Document, Inline, MDList, Paragraph, Alert
-from subete import LanguageCollection, Repo, Project, LOGGER
+from subete import LanguageCollection, Repo, Project
+from subete.repo import logger as subete_logger
 
 
 logger = logging.getLogger(__name__)
@@ -32,7 +33,7 @@ def main():
     if not isinstance(numeric_level, int):
         raise ValueError(f'Invalid log level: {args[1]}')
     logging.basicConfig(level=numeric_level)
-    LOGGER.set_level(logging.WARNING)  # Turn down the subete logging noise
+    subete_logger.setLevel(logging.WARNING)  # Turn down the subete logging noise
     repo = Repo(sample_programs_repo_dir=args[0])
     readme_catalog = ReadMeCatalog(repo)
     for language, page in readme_catalog.pages.items():
