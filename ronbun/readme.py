@@ -232,7 +232,7 @@ class ReadMeCatalog:
         test_data = language.testinfo()
         untestable_data = language.untestable_info()
         common_data = test_data or untestable_data
-        assert common_data is not None
+        assert common_data is not None, f"Language {language} must be either testable or untestable"
 
         extension = common_data.file_info.extension
         naming = common_data.file_info.naming.value
