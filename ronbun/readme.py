@@ -4,6 +4,7 @@ import logging
 import ssl
 import urllib.parse
 
+from glotter_core.project import CoreProject
 from snakemd import Document, Inline, MDList, Paragraph, Alert
 from subete import LanguageCollection, Repo, Project
 from subete.repo import logger as subete_logger
@@ -11,16 +12,8 @@ from subete.repo import logger as subete_logger
 
 logger = logging.getLogger(__name__)
 
-
 issue_url_template_base = "https://github.com/TheRenegadeCoder/sample-programs/issues/new"
 issue_url_template_query = "?assignees=&labels=enhancement,{label}&template=code-snippet-request.md&title=Add+{project}+in+{language}"
-naming_conventions = {
-    "camel": "helloWorld",
-    "hyphen": "hello-world",
-    "lower": "helloworld",
-    "pascal": "HelloWorld",
-    "underscore": "hello_world"
-}
 
 
 def main():
@@ -31,9 +24,10 @@ def main():
     args = _get_args()
     numeric_level = getattr(logging, args[1].upper(), None)
     if not isinstance(numeric_level, int):
-        raise ValueError(f'Invalid log level: {args[1]}')
+        raise ValueError(f"Invalid log level: {args[1]}")
     logging.basicConfig(level=numeric_level)
     subete_logger.setLevel(logging.WARNING)  # Turn down the subete logging noise
+    logger.info("Loading repos (this may take several minutes)")
     repo = Repo(sample_programs_repo_dir=args[0])
     readme_catalog = ReadMeCatalog(repo)
     for language, page in readme_catalog.pages.items():
@@ -79,10 +73,11 @@ def _get_intro_text(language: LanguageCollection) -> Paragraph:
     :param language: the language to generate from the LanguageCollection
     :return: the introduction paragraph in the README
     """
-    sections = [f"Welcome to Sample Programs in {language}!"]
+    language_escaped = _markdown_escape(language.name())
+    sections = [f"Welcome to Sample Programs in {language_escaped}!"]
     if language.has_docs:
         sections += [
-            f" To find documentation related to the {language} code in this repo, look ",
+            f" To find documentation related to the {language_escaped} code in this repo, look ",
             Inline("here", link=language.lang_docs_url()),
             "."
         ]
@@ -99,13 +94,16 @@ def _generate_program_list(language: LanguageCollection) -> list:
     """
     list_items = list()
     for program in language:
-        program_name = f"{program}"
+        program_name = _markdown_escape(f"{program}")
         program_line = Paragraph([f":white_check_mark: {program_name} [Requirements]"]) \
             .insert_link(program_name, program.documentation_url()) \
             .insert_link("Requirements", program.project().requirements_url())
         if not program.has_docs():
             program_line.replace(":white_check_mark:", ":warning:") \
-                .replace_link(program.documentation_url(), program.article_issue_query_url())
+                .replace_link(
+                    _markdown_escape(program.documentation_url()),
+                    _markdown_escape(program.article_issue_query_url())
+                )
         list_items.append(program_line)
     return list_items
 
@@ -127,7 +125,7 @@ def _generate_missing_program_list(language: LanguageCollection, missing_program
         url = issue_url_template_base + issue_url_template_query.format(
             label=program_query.lower(),
             project=program_query,
-            language=urllib.parse.quote(language.name())
+            language=urllib.parse.quote(_markdown_escape(language.name()))
         )
         program_item = Paragraph([f":x: {program_name} [Requirements]"])\
             .insert_link(program_name, url)\
@@ -183,7 +181,8 @@ class ReadMeCatalog:
         page = Document()
 
         # Introduction
-        page.add_heading(f"Sample Programs in {language}")
+        language_escaped = _markdown_escape(language.name())
+        page.add_heading(f"Sample Programs in {language_escaped}")
         page.add_block(_get_note())
         page.add_block(_get_intro_text(language))
 
@@ -196,8 +195,8 @@ class ReadMeCatalog:
         )
         page.add_paragraph(
             f"""
-            In this section, we feature a list of completed and missing programs in {language}. See above for the
-            current amount of completed programs in {language}. If you see a program that is missing and would like to 
+            In this section, we feature a list of completed and missing programs in {language_escaped}. See above for the
+            current amount of completed programs in {language_escaped}. If you see a program that is missing and would like to 
             add it, please submit an issue, so we can assign it to you. 
             """.strip()
         )
@@ -206,7 +205,7 @@ class ReadMeCatalog:
         page.add_heading("Completed Programs", level=3)
         page.add_paragraph(
             f"""
-            Below, you'll find a list of completed code snippets in {language}. Code snippets preceded by :warning: 
+            Below, you'll find a list of completed code snippets in {language_escaped}. Code snippets preceded by :warning: 
             link to a GitHub issue query featuring a possible article request issue. If an article request issue 
             doesn't exist, we encourage you to create one. Meanwhile, code snippets preceded by :white_check_mark: 
             link to an existing article which provides further documentation. To see the list of approved projects, 
@@ -221,7 +220,7 @@ class ReadMeCatalog:
             page.add_heading("Missing Programs", level=3)
             page.add_paragraph(
                 f"""
-                The following list contains all of the approved programs that are not currently implemented in {language}.
+                The following list contains all of the approved programs that are not currently implemented in {language_escaped}.
                 Click on the name of the project to easily open an issue in GitHub. Alternatively, click requirements
                 to check out the description of the project. 
                 """.strip()
@@ -232,42 +231,44 @@ class ReadMeCatalog:
         page.add_heading("Testing", level=2)
         test_data = language.testinfo()
         untestable_data = language.untestable_info()
-        if test_data:
-            extension = test_data["folder"]["extension"]
-            naming = test_data["folder"]["naming"]
+        common_data = test_data or untestable_data
+        assert common_data is not None, f"Language {language} must be either testable or untestable"
+
+        extension = common_data.file_info.extension
+        naming = common_data.file_info.naming.value
+        example_filename = (
+            CoreProject({"words": ["hello", "world"]}).get_project_name_by_scheme(naming)
+            + extension
+        )
+        page.add_paragraph(
+            f"The following list shares details about how we name all Sample Programs in {language_escaped}:"
+        )
+        page.add_unordered_list([
+            f"Extension: {extension}",
+            f"Naming Convention: {naming}"
+        ])
+
+        page.add_paragraph('For example, the "Hello World" sample would be named this:')
+        page.add_unordered_list([example_filename])
+
+        if common_data.is_testable:
             page.add_paragraph(
-                f"The following list shares details about how we name all Sample Programs in {language}:"
+                f"The following list shares details about what we're using to test all Sample Programs in {language_escaped}:"
             )
             page.add_unordered_list([
-                f"Extension: {extension}",
-                f"Naming Convention: {naming}"
+                f"Docker Image: {test_data.container_info.image}",
+                f"Docker Tag: {test_data.container_info.tag}"
             ])
-
-            page.add_paragraph('For example, the "Hello World" sample would be named this:')
-            page.add_unordered_list([f"{naming_conventions[naming]}{extension}"])
-
-            page.add_paragraph(
-                f"The following list shares details about what we're using to test all Sample Programs in {language}:"
-            )
-            page.add_unordered_list([
-                f"Docker Image: {test_data['container']['image']}",
-                f"Docker Tag: {test_data['container']['tag']}"
-            ])
-        elif untestable_data:
-                page.add_paragraph(
-                    f"{language} cannot be tested for the following reason:"
-                )
-                page.add_unordered_list([untestable_data[0]["reason"]])
         else:
-            page.add_paragraph(
-                """
-                This language currently does not feature testing. If you'd like to help in the efforts to test all of 
-                the code in this repo, consider creating a testinfo.yml file with the following information:
-                """
-            )
-            page.add_code("folder:\n  extension:\n  naming:\n\ncontainer:\n  image:\n  tag:\n  cmd:", lang="yml")
+            page.add_paragraph(f"{language_escaped} cannot be tested.")
 
-        if not untestable_data:
+        if common_data.notes:
+            page.add_paragraph("Notes:")
+            page.add_unordered_list(
+                [_markdown_escape(note) for note in common_data.notes]
+            )
+
+        if common_data.is_testable:
             glotter = page.add_paragraph("See the Glotter2 project for more information on how to create a testinfo file.")
             glotter.insert_link("Glotter2 project", "https://github.com/rzuckerm/glotter2")
 
@@ -283,6 +284,10 @@ class ReadMeCatalog:
         """
         for language in self.repo:
             self._build_readme(language)
+
+
+def _markdown_escape(s: str):
+    return s.replace("*", r"\*").replace("`", r"\`")
 
 
 if __name__ == "__main__":
